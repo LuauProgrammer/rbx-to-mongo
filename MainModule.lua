@@ -113,6 +113,30 @@ API.UpdateMany = function(Filter,UpdatedDocumentsData,Upsert,Source,Database,Col
 	return HTTP:JSONDecode(Request)
 end
 
+API.DeleteOne = function(Filter,Source,Database,Collection)
+	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
+	local Body = HTTP:JSONEncode({
+		collection = Collection or StaticCollection,
+		database = Database or StaticDatabase,
+		dataSource = Source or StaticDataSource,
+		filter = Filter,
+	});
+	local Request = HTTP:PostAsync(APIEndpoint.."/action/deleteOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = APIKey})
+	return HTTP:JSONDecode(Request)
+end
+
+API.DeleteMany = function(Filters,Source,Database,Collection)
+	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
+	local Body = HTTP:JSONEncode({
+		collection = Collection or StaticCollection,
+		database = Database or StaticDatabase,
+		dataSource = Source or StaticDataSource,
+		filter = Filters,
+	});
+	local Request = HTTP:PostAsync(APIEndpoint.."/action/deleteMany", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = APIKey})
+	return HTTP:JSONDecode(Request)
+end
+
 API.ReplaceOne = function(Filter,ReplacedDocumentData,Upsert,Source,Database,Collection)
 	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
 	local Body = HTTP:JSONEncode({
