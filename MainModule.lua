@@ -2,153 +2,139 @@
 --//Visit me on GitHub, https://github.com/LuauProgrammer
 
 --//Services
+
 local HTTP = game:GetService("HttpService")
 
+--//Variables
+
+local Post = HTTP.PostAsync
+local Decode = HTTP.JSONDecode
+local Encode = HTTP.JSONEncode
+
 --//Tables
+
 local API = {}
 
---//Variables
-local APIKey = nil
-local APIEndpoint = nil
-local StaticCollection = nil
-local StaticDatabase = nil
-local StaticDataSource = nil
+--//Local Functions
 
---//Modules
-
-API.SetAPIKey = function(Key)
-	APIKey = Key
+local HTTPPost = function(...)
+	local Request = Post(HTTP, ...)
+	return Decode(HTTP,Request)
 end
 
-API.SetEndpoint = function(Endpoint)
-	APIEndpoint = Endpoint
+--//Functions
+
+function API:New(Key, Endpoint)
+	if not Endpoint:find('^http[s]?://') then
+		error('Endpoint must include http:// or https:// at the beginning')
+	end
+	self.APIKey = Key or nil
+	self.APIEndpoint = Endpoint or nil
+	return self
 end
 
-API.SetStaticCollection = function(Collection)
-	StaticCollection = Collection
+
+function API:Change(StaticCollection,StaticSource,StaticDatabase)
+	self.StaticCollection = StaticCollection or self.StaticCollection
+	self.StaticDatabase = StaticDatabase or self.StaticDatabase
+	self.StaticDataSource = StaticSource or self.StaticDataSource 
+	return self
 end
 
-API.SetStaticDataSource = function(Source)
-	StaticCollection = Source
-end
-
-API.SetStaticDatabase = function(Database)
-	StaticDatabase = Database
-end
-
-API.FindOne = function(Filter,Source,Database,Collection)
-	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
-	local Body = HTTP:JSONEncode({
-		collection = Collection or StaticCollection,
-		database = Database or StaticDatabase,
-		dataSource = Source or StaticDataSource,
+function API:FindOne(Filter,Source,Database,Collection)
+	local Body = Encode(HTTP,{
+		collection = Collection or self.StaticCollection,
+		database = Database or self.StaticDatabase,
+		dataSource = Source or self.StaticDataSource,
 		filter = Filter
 	});
-	local Request = HTTP:PostAsync(APIEndpoint.."/action/findOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = APIKey})
-	return HTTP:JSONDecode(Request)
-end     
+	return HTTPPost(self.APIEndpoint.."/action/findOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
+end
 
-API.Find = function(Filter,Source,Database,Collection)
-	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
-	local Body = HTTP:JSONEncode({
-		collection = Collection or StaticCollection,
-		database = Database or StaticDatabase,
-		dataSource = Source or StaticDataSource,
+function API:Find(Filter,Source,Database,Collection)
+	local Body = Encode(HTTP,{
+		collection = Collection or self.StaticCollection,
+		database = Database or self.StaticDatabase,
+		dataSource = Source or self.StaticDataSource,
 		filter = Filter
 	});
-	local Request = HTTP:PostAsync(APIEndpoint.."/action/find", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = APIKey})
-	return HTTP:JSONDecode(Request)
-end     
+	return HTTPPost(self.APIEndpoint.."/action/find", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
+end
 
 
-API.InsertOne = function(DocumentData,Source,Database,Collection)
-	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
-	local Body = HTTP:JSONEncode({
-		collection = Collection or StaticCollection,
-		database = Database or StaticDatabase,
-		dataSource = Source or StaticDataSource,
+function API:InsertOne(DocumentData,Source,Database,Collection)
+	local Body = Encode(HTTP,{
+		collection = Collection or self.StaticCollection,
+		database = Database or self.StaticDatabase,
+		dataSource = Source or self.StaticDataSource,
 		document = DocumentData
 	});
-	local Request = HTTP:PostAsync(APIEndpoint.."/action/insertOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = APIKey})
-	return HTTP:JSONDecode(Request)
+	return HTTPPost(self.APIEndpoint.."/action/insertOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
 end
 
-API.InsertMany = function(DocumentsData,Source,Database,Collection)
-	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
-	local Body = HTTP:JSONEncode({
-		collection = Collection or StaticCollection,
-		database = Database or StaticDatabase,
-		dataSource = Source or StaticDataSource,
+function API:InsertMany(DocumentsData,Source,Database,Collection)
+	local Body = Encode(HTTP,{
+		collection = Collection or self.StaticCollection,
+		database = Database or self.StaticDatabase,
+		dataSource = Source or self.StaticDataSource,
 		documents = DocumentsData
 	});
-	local Request = HTTP:PostAsync(APIEndpoint.."/action/insertMany", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = APIKey})
-	return HTTP:JSONDecode(Request)
+	return HTTPPost(self.APIEndpoint.."/action/insertMany", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
 end
 
-API.UpdateOne = function(Filter,UpdatedDocumentData,Upsert,Source,Database,Collection)
-	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
-	local Body = HTTP:JSONEncode({
-		collection = Collection or StaticCollection,
-		database = Database or StaticDatabase,
-		dataSource = Source or StaticDataSource,
+function API:UpdateOne(Filter,UpdatedDocumentData,Upsert,Source,Database,Collection)
+	local Body = Encode(HTTP,{
+		collection = Collection or self.StaticCollection,
+		database = Database or self.StaticDatabase,
+		dataSource = Source or self.StaticDataSource,
 		upsert = Upsert or false,
 		filter = Filter,
 		update = UpdatedDocumentData
 	});
-	local Request = HTTP:PostAsync(APIEndpoint.."/action/updateOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = APIKey})
-	return HTTP:JSONDecode(Request)
+	return HTTPPost(self.APIEndpoint.."/action/updateOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
 end
 
-API.UpdateMany = function(Filter,UpdatedDocumentsData,Upsert,Source,Database,Collection)
-	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
-	local Body = HTTP:JSONEncode({
-		collection = Collection or StaticCollection,
-		database = Database or StaticDatabase,
-		dataSource = Source or StaticDataSource,
+function API:UpdateMany(Filter,UpdatedDocumentsData,Upsert,Source,Database,Collection)
+	local Body = Encode(HTTP,{
+		collection = Collection or self.StaticCollection,
+		database = Database or self.StaticDatabase,
+		dataSource = Source or self.StaticDataSource,
 		upsert = Upsert or false,
 		filter = Filter,
 		update = UpdatedDocumentsData
 	});
-	local Request = HTTP:PostAsync(APIEndpoint.."/action/updateMany", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = APIKey})
-	return HTTP:JSONDecode(Request)
+	return HTTPPost(self.APIEndpoint.."/action/updateMany", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
 end
 
-API.DeleteOne = function(Filter,Source,Database,Collection)
-	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
-	local Body = HTTP:JSONEncode({
-		collection = Collection or StaticCollection,
-		database = Database or StaticDatabase,
-		dataSource = Source or StaticDataSource,
+function API:DeleteOne(Filter,Source,Database,Collection)
+	local Body = Encode(HTTP,{
+		collection = Collection or self.StaticCollection,
+		database = Database or self.StaticDatabase,
+		dataSource = Source or self.StaticDataSource,
 		filter = Filter,
 	});
-	local Request = HTTP:PostAsync(APIEndpoint.."/action/deleteOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = APIKey})
-	return HTTP:JSONDecode(Request)
+	return HTTPPost(self.APIEndpoint.."/action/deleteOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
 end
-
-API.DeleteMany = function(Filters,Source,Database,Collection)
-	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
-	local Body = HTTP:JSONEncode({
-		collection = Collection or StaticCollection,
-		database = Database or StaticDatabase,
-		dataSource = Source or StaticDataSource,
+function API:DeleteMany(Filters,Source,Database,Collection)
+	local Body = Encode(HTTP,{
+		collection = Collection or self.StaticCollection,
+		database = Database or self.StaticDatabase,
+		dataSource = Source or self.StaticDataSource,
 		filter = Filters,
 	});
-	local Request = HTTP:PostAsync(APIEndpoint.."/action/deleteMany", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = APIKey})
-	return HTTP:JSONDecode(Request)
+	return HTTPPost(self.APIEndpoint.."/action/deleteMany", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
 end
 
-API.ReplaceOne = function(Filter,ReplacedDocumentData,Upsert,Source,Database,Collection)
-	if APIKey == nil or APIEndpoint == nil then return error("Endpoint or key is nil") end
-	local Body = HTTP:JSONEncode({
-		collection = Collection or StaticCollection,
-		database = Database or StaticDatabase,
-		dataSource = Source or StaticDataSource,
+function API:ReplaceOne(Filter,ReplacedDocumentData,Upsert,Source,Database,Collection)
+	local Body = Encode(HTTP,{
+		collection = Collection or self.StaticCollection,
+		database = Database or self.StaticDatabase,
+		dataSource = Source or self.StaticDataSource,
 		upsert = Upsert or false,
 		filter = Filter,
 		replacement = ReplacedDocumentData
 	});
-	local Request = HTTP:PostAsync(APIEndpoint.."/action/replaceOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = APIKey})
-	return HTTP:JSONDecode(Request)
+	return HTTPPost(self.APIEndpoint.."/action/replaceOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
 end
 
 
