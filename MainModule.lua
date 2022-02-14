@@ -137,5 +137,16 @@ function API:ReplaceOne(Filter,ReplacedDocumentData,Upsert,Source,Database,Colle
 	return HTTPPost(self.APIEndpoint.."/action/replaceOne", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
 end
 
+function API:Aggregate(Pipeline,Source,Database,Collection)
+	local Body = Encode(HTTP,{
+		collection = Collection or self.StaticCollection,
+		database = Database or self.StaticDatabase,
+		dataSource = Source or self.StaticDataSource,
+		pipeline = pipeline,
+	});
+	return HTTPPost(self.APIEndpoint.."/action/aggregate", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
+end
+
+
 
 return API
