@@ -142,7 +142,7 @@ function API:Aggregate(Pipeline,Source,Database,Collection)
 		collection = Collection or self.StaticCollection,
 		database = Database or self.StaticDatabase,
 		dataSource = Source or self.StaticDataSource,
-		pipeline = pipeline,
+		pipeline = Pipeline,
 	});
 	return HTTPPost(self.APIEndpoint.."/action/aggregate", Body, Enum.HttpContentType.ApplicationJson, false, {["api-key"] = self.APIKey})
 end
